@@ -2,12 +2,22 @@ from django.shortcuts import render
 from django.http import HttpResponse
 
 from chatterbot import ChatBot
-from chatterbot.trainers import ListTrainer
+from chatterbot.trainers import ListTrainer, ChatterBotCorpusTrainer
 from .intents import intents
 
 # Create your views here.
 
-bot = ChatBot('chatbot', read_only=False, logic_adapters=['chatterbot.logic.BestMatch'])
+bot = ChatBot('chatbot', read_only=False, logic_adapters=[
+    {
+
+        'import_path': 'chatterbot.logic.BestMatch',
+        'default_response': 'Désolé, je suis incapable de comprendre ce que cela signifie.',
+        'maximum_sililarity_threshold': 0.90,
+
+
+
+
+     }])
 
 
 list_trainer = ListTrainer(bot)
@@ -20,6 +30,8 @@ def train_chatbot(intents):
             list_trainer.train([pattern] + responses)
 
 train_chatbot(intents)
+
+chatterbotCorpusTrainer =  ChatterBotCorpusTrainer(bot)
 
 def index(request):
     return render(request, 'bot/index.html')
