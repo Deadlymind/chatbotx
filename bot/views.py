@@ -3,21 +3,23 @@ from django.http import HttpResponse
 
 from chatterbot import ChatBot
 from chatterbot.trainers import ListTrainer
+from .intents import intents
+
+# Create your views here.
 
 bot = ChatBot('chatbot', read_only=False, logic_adapters=['chatterbot.logic.BestMatch'])
 
-# Training the bot
-list_to_train = [
-    "hi",
-    "hi, there",
-    "what's your name?",
-    "I'm just a chatbot",
-    "what is your fav food ?",
-    "I like cheese",
-]
 
 list_trainer = ListTrainer(bot)
-list_trainer.train(list_to_train)
+
+def train_chatbot(intents):
+    for intent in intents:
+        patterns = intent['patterns']
+        responses = intent['responses']
+        for pattern in patterns:
+            list_trainer.train([pattern] + responses)
+
+train_chatbot(intents)
 
 def index(request):
     return render(request, 'bot/index.html')
@@ -28,6 +30,5 @@ def specific(request):
 
 def getResponse(request):
     userMessage = request.GET.get('userMessage')
-    # Get bot's response
-    bot_response = bot.get_response(userMessage)
-    return HttpResponse(bot_response)
+    response = bot.get_response(userMessage)
+    return HttpResponse(response)
